@@ -37,4 +37,9 @@ census <- get_decennial(geography = "state",
 hate_crime <- read_csv("C:\\Users\\ekrot\\OneDrive\\Desktop\\R Studio Final Porfolio\\Final Portfolio\\Quant_1\\Hate_Crime.csv")
 
 ```
+```{r, joining data set}
+
+
+
+```
 
