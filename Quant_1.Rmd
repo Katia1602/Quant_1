@@ -1,0 +1,40 @@
+---
+title: "Quant - Assignment 1"
+author: "Katia Krotova"
+date: "10/25/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, load data}
+
+library(tidyverse)
+library(tidycensus)
+library(readxl)
+library(knitr)
+
+```
+```{r, loading census data}
+
+vars2010 <- load_variables(2010, "sf1")
+
+```
+
+```{r, loading population data from census 2020 }
+
+census <- get_decennial(geography = "state", 
+                        year = 2020,
+                        variables = c(pop = "P1_001N"),
+                        output = "wide",
+                        geometry = TRUE)
+
+```
+```{r, loading in hate crime data}
+
+hate_crime <- read_csv("C:\\Users\\ekrot\\OneDrive\\Desktop\\R Studio Final Porfolio\\Final Portfolio\\Quant_1\\Hate_Crime.csv")
+
+```
+
