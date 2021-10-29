@@ -76,7 +76,7 @@ CO_type <- read_xlsx(path = "data/NCHSURCodes2013.xlsx",
   select(GEOID, type)
 ```
 
-Load election result (Democrat/Republican) data
+Load election result (Democrat/Republican) data 
 ```{r, quiet = TRUE}
 election <- read_csv('data/countypres_2000-2020.csv') %>%
   filter(year == 2020) %>%
