@@ -1,0 +1,115 @@
+---
+title: "Assignment 1_2"
+author: "Emma Bonanno, Emily Johansen, Katia Krotova"
+date: "10/28/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+library(tidyverse)
+library(tidycensus)
+library(readxl)
+library(knitr)
+library(tigris)
+library(sf)
+library(gridExtra)
+```
+```{r}
+vars_2017 <- load_variables(2017, "acs5")
+```
+
+```{r}
+acs <- get_acs(geography = "county", 
+                        year = 2017,
+                        variables = c(total_pop = "B01003_001",
+                                      med_inc = "B06011_001",
+                                      Black = "B02001_003",
+                                      white = "B02001_002"),
+                        output = "wide",
+                        geometry = TRUE)
+```
+```{r}
+areas <- counties() %>%
+  st_set_geometry(NULL) %>%
+  mutate(sq_miles = ALAND / 2589988.11) %>%
+  select(GEOID, sq_miles)
+```
+Load suburban-rural classification
+```{r}
+CO_type <- read_xlsx(path = "data/NCHSURCodes2013.xlsx", 
+                      sheet = "NCHSURCodes2013") %>%
+  mutate(GEOID = case_when(str_length(as.character(`FIPS code`)) == 5 ~ 
+                            as.character(`FIPS code`),
+                          str_length(as.character(`FIPS code`)) == 4 ~
+                            paste("0", `FIPS code`, sep=""),
+                          TRUE ~ "unknown")) %>%
+  mutate(type = case_when(`2013 code` == 1 ~ "Large central metro",
+                          `2013 code` == 2 ~ "Large fringe metro",
+                          `2013 code` == 3 ~ "Medium metro",
+                          `2013 code` == 4 ~ "Small metro",
+                          `2013 code` == 5 ~ "Micropolitan",
+                          `2013 code` == 6 ~ "Non-core",
+                          TRUE ~ "unknown")) %>%
+  select(GEOID, type)
+```
+
+Load election result (Democrat/Republican) data
+```{r}
+election <- read_csv('data/countypres_2000-2020.csv') %>%
+  filter(year == 2020) %>%
+  filter(party == "REPUBLICAN") %>%
+  rename(GEOID = county_fips) %>%
+  group_by(GEOID) %>%
+  summarize(candidatevotes = sum(candidatevotes),
+            totalvotes = first(totalvotes)) %>%
+  mutate(pct_GOP = candidatevotes / totalvotes) %>%
+  mutate(majority_vote = ifelse(pct_GOP > 0.5, "Republican", "Democrat")) %>%
+  select(GEOID, pct_GOP, majority_vote)
+```
+
+```{r}
+election <- election %>%
+   mutate(GEOID = as.character(GEOID))
+```
+Join datasets: 
+```{r}
+data <- left_join(acs, areas) %>%
+  left_join(election) %>%
+  left_join(CO_type) %>%
+  mutate(pop_dens = total_popE / sq_miles) %>%
+  select(GEOID, NAME, total_popE, pop_dens, BlackE, whiteE, type, majority_vote)
+
+kable(head(data))
+```
+# Prior Research
+
+Gimpel, J.G., Lovin, N., Moy, B., & Reeves, A. (2020). The Urban–Rural Gulf in American Political Behavior. Political Behavior, 42, 1343-1368.
+
+
+
+
+
