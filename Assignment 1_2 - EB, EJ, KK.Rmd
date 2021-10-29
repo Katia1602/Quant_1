@@ -263,9 +263,6 @@ grid.arrange(pretty_medinc_hist, pretty_dens_hist, pretty_white_hist, pretty_bla
 
 ```
 
-
-
-
 ## Categorical Variables
 
 The categorical variable used in this analysis are:
@@ -275,9 +272,107 @@ The categorical variable used in this analysis are:
 
 # Calculations
 
-```{r}
+```{r,  using a one sample t-test to get the 95-percent confidence interval for the proportion of the sample in each category}
+
+pct_repub <- t.test(data$majority_vote == "Republican")
+pct_dem <-  t.test(data$majority_vote == "Democrat")
+
+pct_large_metro <- t.test(data$type == "Large central metro")
+pct_fringe_metro <- t.test(data$type == "Large fringe metro")
+pct_med_metro <- t.test(data$type == "Medium metro")
+pct_small_metro <- t.test(data$type == "Small metro")
+pct_micro <- t.test(data$type == "Micropolitan")
+pct_rural <- t.test(data$type == "Non-core")
 
 ```
+
+```{r, displaying results}
+cat_summary_party <- tibble(`Majority Party in 2020` = 
+                              c("Republican",
+                                "Democrat"),
+                            `Sample proportion` = 
+                              c(pct_repub$estimate * 100,
+                                pct_dem$estimate *100),
+                            `95-percent confidence - low` = 
+                              c(pct_repub$conf.int[1] * 100,
+                                pct_dem$conf.int[1] * 100),
+                            `95-percent confidence - high` = 
+                              c(pct_repub$conf.int[2] * 100,
+                                pct_dem$conf.int[2] * 100))
+
+kable(cat_summary_party, digits = 0)
+```
+
+
+```{r, displaying results}
+
+cat_summary_type <- tibble(`County type` = 
+                              c("Larch central metro",
+                                "Large fringe metro",
+                                "Medium metro",
+                                "Small metro",
+                                "Micropolitan",
+                                "Non-core"),
+                            `Sample proportion` = 
+                              c(pct_large_metro$estimate * 100,
+                                pct_fringe_metro$estimate * 100,
+                                pct_med_metro$estimate * 100,
+                                pct_small_metro$estimate * 100,
+                                pct_micro$estimate * 100,
+                                pct_rural$estimate * 100),
+                            `95-percent confidence - low` = 
+                              c(pct_large_metro$conf.int[1] * 100,
+                                pct_fringe_metro$conf.int[1] * 100,
+                                pct_med_metro$conf.int[1] * 100,
+                                pct_small_metro$conf.int[1] * 100,
+                                pct_micro$conf.int[1] * 100,
+                                pct_rural$conf.int[1] * 100),
+                            `95-percent confidence - high` = 
+                              c(pct_large_metro$conf.int[2] * 100,
+                                pct_fringe_metro$conf.int[2] * 100,
+                                pct_med_metro$conf.int[2] * 100,
+                                pct_small_metro$conf.int[2] * 100,
+                                pct_micro$conf.int[2] * 100,
+                                pct_rural$conf.int[2] * 100))
+
+kable(cat_summary_type, digits = 0)
+```
+```{r, bar charts}
+
+ggplot(cat_summary_party) +
+  geom_bar(aes(x = `Majority Party in 2020`, 
+               y = `Sample proportion`),
+           stat = "identity") +
+  geom_errorbar(aes(x = `Majority Party in 2020`, 
+               y = `Sample proportion`,
+               ymin = `95-percent confidence - low`,
+               ymax = `95-percent confidence - high`),
+           stat = "identity") +
+  scale_y_continuous(name = "Percent of counties",
+                     breaks = c(0, 20, 40, 60, 80),
+                     labels = c("0", "20%", "40%", "60%", "80%")) +
+  theme_bw()
+
+```
+```{r, bar charts for county type}
+
+ggplot(cat_summary_type) +
+  geom_bar(aes(x = `County type`, 
+               y = `Sample proportion`),
+           stat = "identity") +
+  geom_errorbar(aes(x = `County type`, 
+               y = `Sample proportion`,
+               ymin = `95-percent confidence - low`,
+               ymax = `95-percent confidence - high`),
+           stat = "identity") +
+  scale_y_continuous(name = "Percent of counties",
+                     breaks = c(0, 10, 20, 30, 40),
+                     labels = c("0", "10%", "20%", "30%", "40%")) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90))
+
+```
+
 
 
 # References
