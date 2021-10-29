@@ -138,10 +138,6 @@ The categorical variable used in this analysis are:
 ```
 
 
- 
-
-
-
 # References
 
 Gimpel, J.G., N. Lovin, B. Moy, & A. Reeves (2020). "The Urban–Rural Gulf in American Political Behavior". Political Behavior, 42, 1343-1368.
