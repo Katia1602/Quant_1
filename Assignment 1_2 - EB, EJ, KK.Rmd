@@ -9,27 +9,17 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Research Question
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Are there significant correlations between rural/suburban/urban characteristics, race, income, and majority county-level voting patterns in the 2020 presidential election? 
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
-```
+## Prior Research
 
-## Including Plots
+Gimpel et. al (2020) find that urban–rural political party splits persist even after accounting for an array of individual-level characteristics, such as race, income and education. Hill et. al (2019) demonstrate that at the precinct level, local demographic changes and increasing diversity did not correlate to an increase in support for anti-immigration Republican candidates in the lead up to the 2016 presidential election. 
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
-```{r}
+```{r, load packagaes and ACS, echo = FALSE, quiet = TRUE}
 library(tidyverse)
 library(tidycensus)
 library(readxl)
@@ -37,12 +27,22 @@ library(knitr)
 library(tigris)
 library(sf)
 library(gridExtra)
-```
-```{r}
+
 vars_2017 <- load_variables(2017, "acs5")
 ```
+## Data
 
-```{r}
+Our sample population for this analysis is the full set of all counties across the United States. The data included in the analysis is:
+
+
+* People per square mile (American Community Survey 2017)
+* Median income (American Community Survey 2017)
+* Population identifying as White only and Black / African-American only (American Community Survey 2017)
+* Majority vote in the 2020 presidential election (MIT Election Data and Science Lab, 2018)
+* Urban-Rural County classification (National Center for Health Statistics 2013)
+
+
+```{r, quiet = TRUE}
 acs <- get_acs(geography = "county", 
                         year = 2017,
                         variables = c(total_pop = "B01003_001",
@@ -51,8 +51,7 @@ acs <- get_acs(geography = "county",
                                       white = "B02001_002"),
                         output = "wide",
                         geometry = TRUE)
-```
-```{r}
+
 areas <- counties() %>%
   st_set_geometry(NULL) %>%
   mutate(sq_miles = ALAND / 2589988.11) %>%
@@ -78,7 +77,7 @@ CO_type <- read_xlsx(path = "data/NCHSURCodes2013.xlsx",
 ```
 
 Load election result (Democrat/Republican) data
-```{r}
+```{r, quiet = TRUE}
 election <- read_csv('data/countypres_2000-2020.csv') %>%
   filter(year == 2020) %>%
   filter(party == "REPUBLICAN") %>%
@@ -101,13 +100,53 @@ data <- left_join(acs, areas) %>%
   left_join(election) %>%
   left_join(CO_type) %>%
   mutate(pop_dens = total_popE / sq_miles) %>%
-  select(GEOID, NAME, total_popE, pop_dens, BlackE, whiteE, type, majority_vote)
+  select(GEOID, NAME, total_popE, pop_dens, med_incE, BlackE, whiteE, type, majority_vote)
 
 kable(head(data))
 ```
-# Prior Research
+## Descriptive Statistics
 
-Gimpel, J.G., Lovin, N., Moy, B., & Reeves, A. (2020). The Urban–Rural Gulf in American Political Behavior. Political Behavior, 42, 1343-1368.
+# Continuous Variables
+
+The continuous variable used in this research are population density, median income, population identifying as White-only, and population identifying as Black or African American-only. 
+
+# Calculations
+
+```{r}
+
+```
+
+```{r}
+
+```
+# Displaying Results
+
+```{r}
+
+```
+## Categorical Variables
+
+The categorical variable used in this analysis are:
+
+* The party of the candidate who won the most votes in the 2020 presidential election
+* The county type (non-core, micropolitan, metropolian, etc), based on the NCHS classification.
+
+# Calculations
+
+```{r}
+
+```
+
+
+
+
+
+
+# References
+
+Gimpel, J.G., N. Lovin, B. Moy, & A. Reeves (2020). "The Urban–Rural Gulf in American Political Behavior". Political Behavior, 42, 1343-1368.
+
+Hill, Seth J.,  Daniel J. Hopkins, Gregory A. Huber (2019). "Local demographic changes and US presidential voting, 2012 to 2016". Proceedings of the National Academy of Arts and Sciences, December 10, 2019 116 (50) 25023-25028. 
 
 
 
