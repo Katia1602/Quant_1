@@ -122,7 +122,7 @@ For each continuous variable calculate:
 
 # Calculations
 
-```{r, the sample mean and the 95-percent confidence interval from the population mean by usuing one sample t-test}
+```{r, the sample mean and the 95-percent confidence interval from the population mean by using one sample t-test}
 
 medinc_t_test <- t.test(data$med_incE)
 dens_t_test <- t.test(data$pop_dens)
@@ -268,7 +268,7 @@ grid.arrange(pretty_medinc_hist, pretty_dens_hist, pretty_white_hist, pretty_bla
 The categorical variable used in this analysis are:
 
 * The party of the candidate who won the most votes in the 2020 presidential election
-* The county type (non-core, micropolitan, metropolian, etc), based on the NCHS classification.
+* The county type (non-core, micropolitan, metropolitan, etc), based on the NCHS classification.
 
 # Calculations
 
@@ -286,7 +286,7 @@ pct_rural <- t.test(data$type == "Non-core")
 
 ```
 
-```{r, displaying results}
+```{r, displaying results - political party}
 cat_summary_party <- tibble(`Majority Party in 2020` = 
                               c("Republican",
                                 "Democrat"),
@@ -304,10 +304,10 @@ kable(cat_summary_party, digits = 0)
 ```
 
 
-```{r, displaying results}
+```{r, displaying results - county type}
 
 cat_summary_type <- tibble(`County type` = 
-                              c("Larch central metro",
+                              c("Large central metro",
                                 "Large fringe metro",
                                 "Medium metro",
                                 "Small metro",
