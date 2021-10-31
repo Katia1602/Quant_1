@@ -1,12 +1,12 @@
 ---
-title: "Assignment 1_2"
+title: "Assignment 1 & 2"
 author: "Emma Bonanno, Emily Johansen, Katia Krotova"
 date: "10/28/2021"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
 ## Research Question
@@ -19,7 +19,7 @@ Are there significant correlations between rural/suburban/urban characteristics,
 Gimpel et. al (2020) find that urban–rural political party splits persist even after accounting for an array of individual-level characteristics, such as race, income and education. Hill et. al (2019) demonstrate that at the precinct level, local demographic changes and increasing diversity did not correlate to an increase in support for anti-immigration Republican candidates in the lead up to the 2016 presidential election. 
 
 
-```{r, load packagaes and ACS, echo = FALSE, quiet = TRUE}
+```{r, load packagaes and ACS, include = FALSE, quiet = TRUE}
 library(tidyverse)
 library(tidycensus)
 library(readxl)
@@ -41,8 +41,8 @@ Our sample population for this analysis is the full set of all counties across t
 * Majority vote in the 2020 presidential election (MIT Election Data and Science Lab, 2018)
 * Urban-Rural County classification (National Center for Health Statistics 2013)
 
-
-```{r, quiet = TRUE}
+Load ACS Data
+```{r, quiet = TRUE, results= FALSE}
 acs <- get_acs(geography = "county", 
                         year = 2017,
                         variables = c(total_pop = "B01003_001",
@@ -77,7 +77,7 @@ CO_type <- read_xlsx(path = "data/NCHSURCodes2013.xlsx",
 ```
 
 Load election result (Democrat/Republican) data 
-```{r, quiet = TRUE}
+```{r, quiet = TRUE, results = 'hide'}
 election <- read_csv('data/countypres_2000-2020.csv') %>%
   filter(year == 2020) %>%
   filter(party == "REPUBLICAN") %>%
