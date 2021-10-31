@@ -32,7 +32,7 @@ vars_2017 <- load_variables(2017, "acs5")
 ```
 ## Data
 
-Our sample population for this analysis is the full set of all counties across the United States. The data included in the analysis is:
+Our sample population for this analysis is the full set of all counties across the United States (3,220 observations total). The data included in the analysis is:
 
 
 * People per square mile (American Community Survey 2017)
