@@ -99,7 +99,9 @@ data <- left_join(acs, areas) %>%
   left_join(election) %>%
   left_join(CO_type) %>%
   mutate(pop_dens = total_popE / sq_miles) %>%
-  select(GEOID, NAME, total_popE, pop_dens, med_incE, BlackE, whiteE, type, pct_GOP)
+  mutate(black_pct = (BlackE / total_popE)*100) %>%
+  mutate(white_pct = (whiteE / total_popE)*100) %>%
+  select(GEOID, NAME, total_popE, pop_dens, med_incE, BlackE, black_pct, whiteE, white_pct, type, pct_GOP)
 
 kable(head(data))
 ```
@@ -355,8 +357,90 @@ ggplot(cat_summary_type) +
   theme(axis.text.x = element_text(angle = 90))
 
 ```
+### Bivariate Analysis
+
+Our dependent variable for this analysis is:
+
+* % of residents within a particular county who voted Republican in the last presidential election
+ 
+Our independent variables are:
+
+* Population Density
+* Median Income 
+* Percentage of population identifying as White only 
+* Percentage of population identifying as Black / African-American only 
+* Urban-Rural County classification
+
+We are looking at these variables across the county level. 
+
+## Regression on Continuous Variables
+
+# Population Density
+
+```{r, calculating correlations between continuous variables}
+cor.test(~ pct_GOP + pop_dens, data = data)
+```
+The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that higher population density within a county is associated with a lower percentage of Republican voters.
+
+```{r, calculating the same thing with a regression analysis}
+dens_model <- lm(pct_GOP ~ pop_dens, data = data)
+
+summary(dens_model)
+```
+#  Median Income 
+
+```{r, correlation test AND regression for median income and % GOP votes}
+cor.test(~ pct_GOP + med_incE, data = data)
+
+inc_model <- lm(pct_GOP ~ med_incE, data = data)
+
+summary(inc_model)
+```
+The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that higher median income within a county is associated with a lower percentage of Republican voters.
 
 
+# Percentage of population identifying as white only
+
+```{r, correlation test AND regression for % white-only and % GOP votes}
+cor.test(~ pct_GOP + white_pct, data = data)
+
+inc_model <- lm(pct_GOP ~ white_pct, data = data)
+
+summary(inc_model)
+```
+The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is positive. This means we can say with 95-percent confidence that a higher percentage of white-only identifying people within a county is associated with a higher percentage of Republican voters.
+
+
+# Percent of population identifying as Black / African-American only 
+
+```{r, correlation test AND regression for black-only and % GOP votes}
+cor.test(~ pct_GOP + black_pct, data = data)
+
+inc_model <- lm(pct_GOP ~ black_pct, data = data)
+
+summary(inc_model)
+```
+The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that a higher percentage of Black-only identifying people within a county is associated with a lower percentage of Republican voters.
+
+
+
+## Regression on Categorical Variables
+
+# Urban-Rural County classification
+
+Is there a relationship between voting patterns and the urban/rural makeup of a county?
+
+```{r}
+data <- data %>%
+  mutate(type = as.factor(type)) %>%
+  mutate(type = relevel(type, "Large central metro"))
+
+type_model <- lm(pct_GOP ~ type, data)
+
+summary(type_model)
+```
+
+^^^ I AM STRUGGLING TO INTERPRET THE ABOVE - ANY IDEAS????
 
 # References
 
