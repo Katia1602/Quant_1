@@ -100,6 +100,10 @@ data <- left_join(acs, areas) %>%
   mutate(black_pct = (BlackE / total_popE)*100) %>%
   mutate(white_pct = (whiteE / total_popE)*100) %>%
   select(GEOID, NAME, total_popE, pop_dens, med_incE, BlackE, black_pct, whiteE, white_pct, type, pct_GOP)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 kable(head(data))
 ```
 ## Descriptive Statistics
@@ -134,6 +138,10 @@ dens_quartiles <- quantile(data$pop_dens, na.rm = TRUE)
 black_quartiles <- quantile(data$BlackE, na.rm = TRUE)
 white_quartiles <- quantile(data$whiteE, na.rm = TRUE)
 GOP_quartiles <- quantile(data$pct_GOP, na.rm = TRUE)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 ```
 
 ```{r, calculationg standard deviation}
@@ -142,6 +150,10 @@ dens_st_dev <- sd(data$pop_dens, na.rm = TRUE)
 black_st_dev <- sd(data$BlackE, na.rm = TRUE)
 white_st_dev <- sd(data$whiteE, na.rm = TRUE)
 GOP_st_dev <- sd(data$pct_GOP, na.rm = TRUE)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 ```
 
 ```{r, generationg histogram for each variable}
@@ -160,16 +172,29 @@ white_hist <- ggplot(data) +
   geom_histogram(aes(x = whiteE),
                  bins = 30)+
   scale_x_continuous(trans = "log")
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 GOP_hist <- ggplot(data) +
   geom_histogram(aes(x = pct_GOP),
                  bins = 30) +
   scale_x_continuous(trans = "log")
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 ```
 
 
 # Displaying Results
 
 ```{r, displaying results from the continous variables, warning=FALSE}
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 medinc_t_test
 medinc_quartiles
 medinc_st_dev
@@ -214,6 +239,10 @@ cont_summary <- tibble(
                           white_st_dev,
                           black_st_dev,
                           GOP_st_dev))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 kable(cont_summary, digits = 0)
 ```
 ```{r, row of historgrams for the continous variables above}
@@ -222,11 +251,19 @@ pretty_medinc_hist <- medinc_hist +
   scale_x_continuous(name = "Median income") +
   scale_y_continuous(name = "Number of counties") +
   theme(axis.text.x = element_text(angle = 90))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 pretty_GOP_hist <- GOP_hist +
   theme_bw() +
   scale_x_continuous(name = "% of county residents who voted Republican") +
   scale_y_continuous(name = "Number of counties") +
   theme(axis.text.x = element_text(angle = 90))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 pretty_dens_hist <- dens_hist +
   theme_bw() + 
   scale_x_continuous(name = "Population density\n(residents per square mile)",
@@ -251,6 +288,11 @@ pretty_black_hist = black_hist +
                      labels = seq(0, 300, by = 50)) +
   scale_y_continuous(name = "Number of counties") +
   theme(axis.text.x = element_text(angle = 90))
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 grid.arrange(pretty_medinc_hist, pretty_dens_hist, pretty_white_hist, pretty_black_hist, pretty_GOP_hist,
              ncol = 3)
 ```
@@ -264,12 +306,21 @@ The categorical variable used in this analysis is:
 # Calculations
 
 ```{r,  using a one sample t-test to get the 95-percent confidence interval for the proportion of the sample in each category}
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 pct_large_metro <- t.test(data$type == "Large central metro")
 pct_fringe_metro <- t.test(data$type == "Large fringe metro")
 pct_med_metro <- t.test(data$type == "Medium metro")
 pct_small_metro <- t.test(data$type == "Small metro")
 pct_micro <- t.test(data$type == "Micropolitan")
 pct_rural <- t.test(data$type == "Non-core")
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 ```
 
 ```{r, displaying results - county type}
@@ -343,6 +394,7 @@ We are looking at these variables across the county level.
 ```{r, calculating correlations between continuous variables}
 cor.test(~ pct_GOP + pop_dens, data = data)
 ```
+<<<<<<< HEAD
 The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that higher population density within a county is associated with a lower percentage of Republican voters.
 
 ```{r, calculating the same thing with a regression analysis}
@@ -357,6 +409,92 @@ inc_model <- lm(pct_GOP ~ med_incE, data = data)
 summary(inc_model)
 ```
 The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that higher median income within a county is associated with a lower percentage of Republican voters.
+=======
+### Bivariate Analysis
+
+Our dependent variable for this analysis is:
+
+* % of residents within a particular county who voted Republican in the last presidential election
+ 
+Our independent variables are:
+
+* Population Density
+* Median Income 
+* Percentage of population identifying as White only 
+* Percentage of population identifying as Black / African-American only 
+* Urban-Rural County classification
+
+We are looking at these variables across the county level. 
+
+## Regression on Continuous Variables
+
+# Population Density
+
+```{r, calculating correlations between continuous variables}
+cor.test(~ pct_GOP + pop_dens, data = data)
+```
+The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that higher population density within a county is associated with a lower percentage of Republican voters.
+
+```{r, calculating the same thing with a regression analysis}
+dens_model <- lm(pct_GOP ~ pop_dens, data = data)
+
+summary(dens_model)
+```
+#  Median Income 
+
+```{r, correlation test AND regression for median income and % GOP votes}
+cor.test(~ pct_GOP + med_incE, data = data)
+
+inc_model <- lm(pct_GOP ~ med_incE, data = data)
+
+summary(inc_model)
+```
+The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that higher median income within a county is associated with a lower percentage of Republican voters.
+
+
+# Percentage of population identifying as white only
+
+```{r, correlation test AND regression for % white-only and % GOP votes}
+cor.test(~ pct_GOP + white_pct, data = data)
+
+inc_model <- lm(pct_GOP ~ white_pct, data = data)
+
+summary(inc_model)
+```
+The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is positive. This means we can say with 95-percent confidence that a higher percentage of white-only identifying people within a county is associated with a higher percentage of Republican voters.
+
+
+# Percent of population identifying as Black / African-American only 
+
+```{r, correlation test AND regression for black-only and % GOP votes}
+cor.test(~ pct_GOP + black_pct, data = data)
+
+inc_model <- lm(pct_GOP ~ black_pct, data = data)
+
+summary(inc_model)
+```
+The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that a higher percentage of Black-only identifying people within a county is associated with a lower percentage of Republican voters.
+
+
+
+## Regression on Categorical Variables
+
+# Urban-Rural County classification
+
+Is there a relationship between voting patterns and the urban/rural makeup of a county?
+
+```{r}
+data <- data %>%
+  mutate(type = as.factor(type)) %>%
+  mutate(type = relevel(type, "Large central metro"))
+
+type_model <- lm(pct_GOP ~ type, data)
+
+summary(type_model)
+```
+
+^^^ I AM STRUGGLING TO INTERPRET THE ABOVE - ANY IDEAS????
+>>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 
 
 # Percentage of population identifying as white only
