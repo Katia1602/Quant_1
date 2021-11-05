@@ -27,7 +27,6 @@ library(knitr)
 library(tigris)
 library(sf)
 library(gridExtra)
-
 vars_2017 <- load_variables(2017, "acs5")
 ```
 ## Data
@@ -51,7 +50,6 @@ acs <- get_acs(geography = "county",
                                       white = "B02001_002"),
                         output = "wide",
                         geometry = TRUE)
-
 areas <- counties() %>%
   st_set_geometry(NULL) %>%
   mutate(sq_miles = ALAND / 2589988.11) %>%
@@ -85,9 +83,8 @@ election <- read_csv('data/countypres_2000-2020.csv') %>%
   group_by(GEOID) %>%
   summarize(candidatevotes = sum(candidatevotes),
             totalvotes = first(totalvotes)) %>%
-  mutate(pct_GOP = candidatevotes / totalvotes) %>%
-  mutate(majority_vote = ifelse(pct_GOP > 0.5, "Republican", "Democrat")) %>%
-  select(GEOID, pct_GOP, majority_vote)
+  mutate(pct_GOP = (candidatevotes / totalvotes)*100) %>%
+  select(GEOID, pct_GOP)
 ```
 
 ```{r}
@@ -100,15 +97,16 @@ data <- left_join(acs, areas) %>%
   left_join(election) %>%
   left_join(CO_type) %>%
   mutate(pop_dens = total_popE / sq_miles) %>%
-  select(GEOID, NAME, total_popE, pop_dens, med_incE, BlackE, whiteE, type, majority_vote)
-
+  mutate(black_pct = (BlackE / total_popE)*100) %>%
+  mutate(white_pct = (whiteE / total_popE)*100) %>%
+  select(GEOID, NAME, total_popE, pop_dens, med_incE, BlackE, black_pct, whiteE, white_pct, type, pct_GOP)
 kable(head(data))
 ```
 ## Descriptive Statistics
 
 # Continuous Variables
 
-The continuous variable used in this research are population density, median income, population identifying as White-only, and population identifying as Black or African American-only. 
+The continuous variable used in this research are population density, median income, population identifying as White-only, population identifying as Black or African American-only, and percentage of a county's population that voted Republican in the 2020 presidential election. 
 
 Assignment 2:
 
@@ -123,113 +121,112 @@ For each continuous variable calculate:
 # Calculations
 
 ```{r, the sample mean and the 95-percent confidence interval from the population mean by using one sample t-test}
-
 medinc_t_test <- t.test(data$med_incE)
 dens_t_test <- t.test(data$pop_dens)
 black_t_test <- t.test(data$BlackE)
 white_t_test <- t.test(data$whiteE)
+GOP_t_test <- t.test(data$pct_GOP)
 ```
 
 ```{r, calculationg the median and the interquartile range using the quantile function}
-
 medinc_quartiles <- quantile(data$med_incE, na.rm = TRUE)
 dens_quartiles <- quantile(data$pop_dens, na.rm = TRUE)
 black_quartiles <- quantile(data$BlackE, na.rm = TRUE)
 white_quartiles <- quantile(data$whiteE, na.rm = TRUE)
-
+GOP_quartiles <- quantile(data$pct_GOP, na.rm = TRUE)
 ```
 
 ```{r, calculationg standard deviation}
-
 medinc_st_dev <- sd(data$med_incE, na.rm = TRUE)
 dens_st_dev <- sd(data$pop_dens, na.rm = TRUE)
 black_st_dev <- sd(data$BlackE, na.rm = TRUE)
 white_st_dev <- sd(data$whiteE, na.rm = TRUE)
-
+GOP_st_dev <- sd(data$pct_GOP, na.rm = TRUE)
 ```
 
 ```{r, generationg histogram for each variable}
-
 medinc_hist <- ggplot(data) +
   geom_histogram(aes(x = med_incE),
                  bins = 30)
-
 dens_hist <- ggplot(data) +
   geom_histogram(aes(x = pop_dens),
                  bins = 30) +
   scale_x_continuous(trans = "log")
-
 black_hist <- ggplot(data) +
   geom_histogram(aes(x = BlackE),
                  bins = 30) +
    scale_x_continuous(trans = "log")
-
 white_hist <- ggplot(data) +
   geom_histogram(aes(x = whiteE),
                  bins = 30)+
   scale_x_continuous(trans = "log")
-
-
-
+GOP_hist <- ggplot(data) +
+  geom_histogram(aes(x = pct_GOP),
+                 bins = 30) +
+  scale_x_continuous(trans = "log")
 ```
 
 
 # Displaying Results
 
-```{r, displaying results from the cantinous variables, warning=FALSE}
-
+```{r, displaying results from the continous variables, warning=FALSE}
 medinc_t_test
 medinc_quartiles
 medinc_st_dev
 medinc_hist
-
 ```
 ```{r, creating formatted table to display the results above}
-
 cont_summary <- tibble(
   Variable = c("Median income", 
                "Population density (people per square mile)",
                "Population identifying as Black or African-American only",
-               "Population identifying as White only"),
+               "Population identifying as White only",
+               "Percent who voted Republican"),
   `Sample mean` = c(medinc_t_test$estimate,
                     dens_t_test$estimate,
                     white_t_test$estimate,
-                    black_t_test$estimate),
+                    black_t_test$estimate,
+                    GOP_t_test$estimate),
   `Population mean (95% confidence) - low` = 
     c(medinc_t_test$conf.int[1],
       dens_t_test$conf.int[1],
        white_t_test$conf.int[1],
-      black_t_test$conf.int[1]),
+      black_t_test$conf.int[1],
+      GOP_t_test$conf.int[1]),
   `Population mean (95% confidence) - high` =
     c(medinc_t_test$conf.int[2],
       dens_t_test$conf.int[2],
       white_t_test$conf.int[2],
-      black_t_test$conf.int[2]),
+      black_t_test$conf.int[2],
+      GOP_t_test$conf.int[2]),
   Median = c(medinc_quartiles[3],
              dens_quartiles[3],
              white_quartiles[3],
-             black_quartiles[3]),
+             black_quartiles[3],
+             GOP_quartiles[3]),
   `Interquartile range` = c(medinc_quartiles[4] - medinc_quartiles[2],
                             dens_quartiles[4] - dens_quartiles[2],
                             white_quartiles[4] - white_quartiles[2],
-                            black_quartiles[4] - black_quartiles[2]),
+                            black_quartiles[4] - black_quartiles[2],
+                            GOP_quartiles[4] - GOP_quartiles[2]),
   `Standard deviation` = c(medinc_st_dev,
                           dens_st_dev,
                           white_st_dev,
-                          black_st_dev))
-
+                          black_st_dev,
+                          GOP_st_dev))
 kable(cont_summary, digits = 0)
-
-
 ```
 ```{r, row of historgrams for the continous variables above}
-
 pretty_medinc_hist <- medinc_hist +
   theme_bw() +
   scale_x_continuous(name = "Median income") +
   scale_y_continuous(name = "Number of counties") +
   theme(axis.text.x = element_text(angle = 90))
-
+pretty_GOP_hist <- GOP_hist +
+  theme_bw() +
+  scale_x_continuous(name = "% of county residents who voted Republican") +
+  scale_y_continuous(name = "Number of counties") +
+  theme(axis.text.x = element_text(angle = 90))
 pretty_dens_hist <- dens_hist +
   theme_bw() + 
   scale_x_continuous(name = "Population density\n(residents per square mile)",
@@ -238,7 +235,6 @@ pretty_dens_hist <- dens_hist +
                      labels = c("0.1", "1", "10", "100", "1000", "10,000")) +
   scale_y_continuous(name = "Number of counties") +
   theme(axis.text.x = element_text(angle = 90))
-
 pretty_white_hist = white_hist +
   theme_bw() +
   scale_x_continuous(name = "Population identifying as White only",
@@ -247,7 +243,6 @@ pretty_white_hist = white_hist +
                      labels = seq(0, 300, by = 50)) +
   scale_y_continuous(name = "Number of counties") +
   theme(axis.text.x = element_text(angle = 90)) 
-
 pretty_black_hist = black_hist +
   theme_bw() +
   scale_x_continuous(name = "Population identifying as Black or African-American only",
@@ -256,56 +251,28 @@ pretty_black_hist = black_hist +
                      labels = seq(0, 300, by = 50)) +
   scale_y_continuous(name = "Number of counties") +
   theme(axis.text.x = element_text(angle = 90))
-
-grid.arrange(pretty_medinc_hist, pretty_dens_hist, pretty_white_hist, pretty_black_hist,
+grid.arrange(pretty_medinc_hist, pretty_dens_hist, pretty_white_hist, pretty_black_hist, pretty_GOP_hist,
              ncol = 3)
-
-
 ```
 
 ## Categorical Variables
 
-The categorical variable used in this analysis are:
+The categorical variable used in this analysis is:
 
-* The party of the candidate who won the most votes in the 2020 presidential election
 * The county type (non-core, micropolitan, metropolitan, etc), based on the NCHS classification.
 
 # Calculations
 
 ```{r,  using a one sample t-test to get the 95-percent confidence interval for the proportion of the sample in each category}
-
-pct_repub <- t.test(data$majority_vote == "Republican")
-pct_dem <-  t.test(data$majority_vote == "Democrat")
-
 pct_large_metro <- t.test(data$type == "Large central metro")
 pct_fringe_metro <- t.test(data$type == "Large fringe metro")
 pct_med_metro <- t.test(data$type == "Medium metro")
 pct_small_metro <- t.test(data$type == "Small metro")
 pct_micro <- t.test(data$type == "Micropolitan")
 pct_rural <- t.test(data$type == "Non-core")
-
 ```
-
-```{r, displaying results - political party}
-cat_summary_party <- tibble(`Majority Party in 2020` = 
-                              c("Republican",
-                                "Democrat"),
-                            `Sample proportion` = 
-                              c(pct_repub$estimate * 100,
-                                pct_dem$estimate *100),
-                            `95-percent confidence - low` = 
-                              c(pct_repub$conf.int[1] * 100,
-                                pct_dem$conf.int[1] * 100),
-                            `95-percent confidence - high` = 
-                              c(pct_repub$conf.int[2] * 100,
-                                pct_dem$conf.int[2] * 100))
-
-kable(cat_summary_party, digits = 0)
-```
-
 
 ```{r, displaying results - county type}
-
 cat_summary_type <- tibble(`County type` = 
                               c("Large central metro",
                                 "Large fringe metro",
@@ -334,28 +301,10 @@ cat_summary_type <- tibble(`County type` =
                                 pct_small_metro$conf.int[2] * 100,
                                 pct_micro$conf.int[2] * 100,
                                 pct_rural$conf.int[2] * 100))
-
 kable(cat_summary_type, digits = 0)
 ```
-```{r, bar charts}
 
-ggplot(cat_summary_party) +
-  geom_bar(aes(x = `Majority Party in 2020`, 
-               y = `Sample proportion`),
-           stat = "identity") +
-  geom_errorbar(aes(x = `Majority Party in 2020`, 
-               y = `Sample proportion`,
-               ymin = `95-percent confidence - low`,
-               ymax = `95-percent confidence - high`),
-           stat = "identity") +
-  scale_y_continuous(name = "Percent of counties",
-                     breaks = c(0, 20, 40, 60, 80),
-                     labels = c("0", "20%", "40%", "60%", "80%")) +
-  theme_bw()
-
-```
 ```{r, bar charts for county type}
-
 ggplot(cat_summary_type) +
   geom_bar(aes(x = `County type`, 
                y = `Sample proportion`),
@@ -370,18 +319,86 @@ ggplot(cat_summary_type) +
                      labels = c("0", "10%", "20%", "30%", "40%")) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90))
+```
+### Bivariate Analysis
 
+Our dependent variable for this analysis is:
+
+* % of residents within a particular county who voted Republican in the last presidential election
+ 
+Our independent variables are:
+
+* Population Density
+* Median Income 
+* Percentage of population identifying as White only 
+* Percentage of population identifying as Black / African-American only 
+* Urban-Rural County classification
+
+We are looking at these variables across the county level. 
+
+## Regression on Continuous Variables
+
+# Population Density
+
+```{r, calculating correlations between continuous variables}
+cor.test(~ pct_GOP + pop_dens, data = data)
+```
+The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that higher population density within a county is associated with a lower percentage of Republican voters.
+
+```{r, calculating the same thing with a regression analysis}
+dens_model <- lm(pct_GOP ~ pop_dens, data = data)
+summary(dens_model)
+```
+#  Median Income 
+
+```{r, correlation test AND regression for median income and % GOP votes}
+cor.test(~ pct_GOP + med_incE, data = data)
+inc_model <- lm(pct_GOP ~ med_incE, data = data)
+summary(inc_model)
+```
+The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that higher median income within a county is associated with a lower percentage of Republican voters.
+
+
+# Percentage of population identifying as white only
+
+```{r, correlation test AND regression for % white-only and % GOP votes}
+cor.test(~ pct_GOP + white_pct, data = data)
+inc_model <- lm(pct_GOP ~ white_pct, data = data)
+summary(inc_model)
+```
+The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is positive. This means we can say with 95-percent confidence that a higher percentage of white-only identifying people within a county is associated with a higher percentage of Republican voters.
+
+
+# Percent of population identifying as Black / African-American only 
+
+```{r, correlation test AND regression for black-only and % GOP votes}
+cor.test(~ pct_GOP + black_pct, data = data)
+inc_model <- lm(pct_GOP ~ black_pct, data = data)
+summary(inc_model)
+```
+The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that a higher percentage of Black-only identifying people within a county is associated with a lower percentage of Republican voters.
+
+
+
+## Regression on Categorical Variables
+
+# Urban-Rural County classification
+
+Is there a relationship between voting patterns and the urban/rural makeup of a county?
+
+```{r}
+data <- data %>%
+  mutate(type = as.factor(type)) %>%
+  mutate(type = relevel(type, "Large central metro"))
+type_model <- lm(pct_GOP ~ type, data)
+summary(type_model)
 ```
 
-
+^^^ I AM STRUGGLING TO INTERPRET THE ABOVE - ANY IDEAS????
+Since the coefficient for each is positive (represented in the first "Estimate Std" column), there is a positive relationship between each of these types and GOP voting. Since the coefficients are higher for micropolitan and non-core cities, we can infer that GOP voting is generally higher in these types of cities than in the others which have lower coefficients. 
 
 # References
 
 Gimpel, J.G., N. Lovin, B. Moy, & A. Reeves (2020). "The Urban–Rural Gulf in American Political Behavior". Political Behavior, 42, 1343-1368.
 
 Hill, Seth J.,  Daniel J. Hopkins, Gregory A. Huber (2019). "Local demographic changes and US presidential voting, 2012 to 2016". Proceedings of the National Academy of Arts and Sciences, December 10, 2019 116 (50) 25023-25028. 
-
-
-
-
-
