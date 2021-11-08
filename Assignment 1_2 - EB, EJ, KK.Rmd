@@ -181,7 +181,7 @@ medinc_quartiles
 medinc_st_dev
 medinc_hist
 ```
-```{r, creating formatted table to display the results above}
+```{r}
 cont_summary <- tibble(
   Variable = c("Median income", 
                "Population density (people per square mile)",
@@ -223,7 +223,7 @@ cont_summary <- tibble(
 
 kable(cont_summary, digits = 0)
 ```
-```{r, row of historgrams for the continous variables above}
+```{r}
 pretty_medinc_hist <- medinc_hist +
   theme_bw() +
   scale_x_continuous(name = "Median income") +
@@ -274,7 +274,7 @@ The categorical variable used in this analysis is:
 
 # Calculations
 
-```{r,  using a one sample t-test to get the 95-percent confidence interval for the proportion of the sample in each category}
+```{r}
 
 pct_large_metro <- t.test(data$type == "Large central metro")
 pct_fringe_metro <- t.test(data$type == "Large fringe metro")
@@ -285,7 +285,7 @@ pct_rural <- t.test(data$type == "Non-core")
 
 ```
 
-```{r, displaying results - county type}
+```{r}
 cat_summary_type <- tibble(`County type` = 
                               c("Large central metro",
                                 "Large fringe metro",
@@ -317,7 +317,7 @@ cat_summary_type <- tibble(`County type` =
 kable(cat_summary_type, digits = 0)
 ```
 
-```{r, bar charts for county type}
+```{r}
 ggplot(cat_summary_type) +
   geom_bar(aes(x = `County type`, 
                y = `Sample proportion`),
@@ -353,25 +353,25 @@ We are looking at these variables across the county level.
 
 # Population Density
 
-```{r, calculating correlations between continuous variables}
+```{r}
 cor.test(~ pct_GOP + pop_dens, data = data)
 ```
-<<<<<<< HEAD
+
 The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that higher population density within a county is associated with a lower percentage of Republican voters.
 
-```{r, calculating the same thing with a regression analysis}
+```{r}
 dens_model <- lm(pct_GOP ~ pop_dens, data = data)
 summary(dens_model)
 ```
 #  Median Income 
 
-```{r, correlation test AND regression for median income and % GOP votes}
+```{r}
 cor.test(~ pct_GOP + med_incE, data = data)
 inc_model <- lm(pct_GOP ~ med_incE, data = data)
 summary(inc_model)
 ```
 The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that higher median income within a county is associated with a lower percentage of Republican voters.
-=======
+
 ### Bivariate Analysis
 
 Our dependent variable for this analysis is:
@@ -392,19 +392,19 @@ We are looking at these variables across the county level.
 
 # Population Density
 
-```{r, calculating correlations between continuous variables}
+```{r}
 cor.test(~ pct_GOP + pop_dens, data = data)
 ```
 The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that higher population density within a county is associated with a lower percentage of Republican voters.
 
-```{r, calculating the same thing with a regression analysis}
+```{r}
 dens_model <- lm(pct_GOP ~ pop_dens, data = data)
 
 summary(dens_model)
 ```
 #  Median Income 
 
-```{r, correlation test AND regression for median income and % GOP votes}
+```{r}
 cor.test(~ pct_GOP + med_incE, data = data)
 
 inc_model <- lm(pct_GOP ~ med_incE, data = data)
@@ -416,7 +416,7 @@ The 95-percent confidence interval for the correlation does not include zero, an
 
 # Percentage of population identifying as white only
 
-```{r, correlation test AND regression for % white-only and % GOP votes}
+```{r}
 cor.test(~ pct_GOP + white_pct, data = data)
 
 inc_model <- lm(pct_GOP ~ white_pct, data = data)
@@ -428,7 +428,7 @@ The 95-percent confidence interval for the correlation does not include zero, an
 
 # Percent of population identifying as Black / African-American only 
 
-```{r, correlation test AND regression for black-only and % GOP votes}
+```{r}
 cor.test(~ pct_GOP + black_pct, data = data)
 
 inc_model <- lm(pct_GOP ~ black_pct, data = data)
@@ -459,7 +459,7 @@ summary(type_model)
 
 # Percentage of population identifying as white only
 
-```{r, correlation test AND regression for % white-only and % GOP votes}
+```{r}
 cor.test(~ pct_GOP + white_pct, data = data)
 inc_model <- lm(pct_GOP ~ white_pct, data = data)
 summary(inc_model)
@@ -469,7 +469,7 @@ The 95-percent confidence interval for the correlation does not include zero, an
 
 # Percent of population identifying as Black / African-American only 
 
-```{r, correlation test AND regression for black-only and % GOP votes}
+```{r}
 cor.test(~ pct_GOP + black_pct, data = data)
 inc_model <- lm(pct_GOP ~ black_pct, data = data)
 summary(inc_model)
