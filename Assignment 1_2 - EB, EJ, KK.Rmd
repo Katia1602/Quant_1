@@ -100,10 +100,7 @@ data <- left_join(acs, areas) %>%
   mutate(black_pct = (BlackE / total_popE)*100) %>%
   mutate(white_pct = (whiteE / total_popE)*100) %>%
   select(GEOID, NAME, total_popE, pop_dens, med_incE, BlackE, black_pct, whiteE, white_pct, type, pct_GOP)
-<<<<<<< HEAD
-=======
 
->>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 kable(head(data))
 ```
 ## Descriptive Statistics
@@ -138,10 +135,7 @@ dens_quartiles <- quantile(data$pop_dens, na.rm = TRUE)
 black_quartiles <- quantile(data$BlackE, na.rm = TRUE)
 white_quartiles <- quantile(data$whiteE, na.rm = TRUE)
 GOP_quartiles <- quantile(data$pct_GOP, na.rm = TRUE)
-<<<<<<< HEAD
-=======
 
->>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 ```
 
 ```{r, calculationg standard deviation}
@@ -150,10 +144,7 @@ dens_st_dev <- sd(data$pop_dens, na.rm = TRUE)
 black_st_dev <- sd(data$BlackE, na.rm = TRUE)
 white_st_dev <- sd(data$whiteE, na.rm = TRUE)
 GOP_st_dev <- sd(data$pct_GOP, na.rm = TRUE)
-<<<<<<< HEAD
-=======
 
->>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 ```
 
 ```{r, generationg histogram for each variable}
@@ -172,29 +163,19 @@ white_hist <- ggplot(data) +
   geom_histogram(aes(x = whiteE),
                  bins = 30)+
   scale_x_continuous(trans = "log")
-<<<<<<< HEAD
-=======
 
->>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 GOP_hist <- ggplot(data) +
   geom_histogram(aes(x = pct_GOP),
                  bins = 30) +
   scale_x_continuous(trans = "log")
-<<<<<<< HEAD
-=======
 
-
->>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 ```
 
 
 # Displaying Results
 
 ```{r, displaying results from the continous variables, warning=FALSE}
-<<<<<<< HEAD
-=======
 
->>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 medinc_t_test
 medinc_quartiles
 medinc_st_dev
@@ -239,10 +220,7 @@ cont_summary <- tibble(
                           white_st_dev,
                           black_st_dev,
                           GOP_st_dev))
-<<<<<<< HEAD
-=======
 
->>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 kable(cont_summary, digits = 0)
 ```
 ```{r, row of historgrams for the continous variables above}
@@ -251,19 +229,14 @@ pretty_medinc_hist <- medinc_hist +
   scale_x_continuous(name = "Median income") +
   scale_y_continuous(name = "Number of counties") +
   theme(axis.text.x = element_text(angle = 90))
-<<<<<<< HEAD
-=======
 
->>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
+
 pretty_GOP_hist <- GOP_hist +
   theme_bw() +
   scale_x_continuous(name = "% of county residents who voted Republican") +
   scale_y_continuous(name = "Number of counties") +
   theme(axis.text.x = element_text(angle = 90))
-<<<<<<< HEAD
-=======
 
->>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 pretty_dens_hist <- dens_hist +
   theme_bw() + 
   scale_x_continuous(name = "Population density\n(residents per square mile)",
@@ -288,11 +261,7 @@ pretty_black_hist = black_hist +
                      labels = seq(0, 300, by = 50)) +
   scale_y_continuous(name = "Number of counties") +
   theme(axis.text.x = element_text(angle = 90))
-<<<<<<< HEAD
-=======
 
-
->>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 grid.arrange(pretty_medinc_hist, pretty_dens_hist, pretty_white_hist, pretty_black_hist, pretty_GOP_hist,
              ncol = 3)
 ```
@@ -306,21 +275,14 @@ The categorical variable used in this analysis is:
 # Calculations
 
 ```{r,  using a one sample t-test to get the 95-percent confidence interval for the proportion of the sample in each category}
-<<<<<<< HEAD
-=======
 
-
->>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 pct_large_metro <- t.test(data$type == "Large central metro")
 pct_fringe_metro <- t.test(data$type == "Large fringe metro")
 pct_med_metro <- t.test(data$type == "Medium metro")
 pct_small_metro <- t.test(data$type == "Small metro")
 pct_micro <- t.test(data$type == "Micropolitan")
 pct_rural <- t.test(data$type == "Non-core")
-<<<<<<< HEAD
-=======
 
->>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 ```
 
 ```{r, displaying results - county type}
@@ -493,8 +455,6 @@ type_model <- lm(pct_GOP ~ type, data)
 summary(type_model)
 ```
 
-^^^ I AM STRUGGLING TO INTERPRET THE ABOVE - ANY IDEAS????
->>>>>>> 7cf9bc6df7ba7bd629345015a689e92b94c695b2
 
 
 # Percentage of population identifying as white only
@@ -531,8 +491,6 @@ data <- data %>%
 type_model <- lm(pct_GOP ~ type, data)
 summary(type_model)
 ```
-
-^^^ I AM STRUGGLING TO INTERPRET THE ABOVE - ANY IDEAS????
 Since the coefficient for each is positive (represented in the first "Estimate Std" column), there is a positive relationship between each of these types and GOP voting. Since the coefficients are higher for micropolitan and non-core cities, we can infer that GOP voting is generally higher in these types of cities than in the others which have lower coefficients. 
 
 # References
