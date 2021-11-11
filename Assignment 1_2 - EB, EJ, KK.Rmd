@@ -496,12 +496,24 @@ Since the coefficient for each is positive (represented in the first "Estimate S
 ## Multivariate regression
 ```{r}
 
-full_model <- lm(pct_GOP ~ med_incE + pop_dens + white_pct + black_pct, data)
+full_model <- lm(pct_GOP ~ med_incE + pop_dens + white_pct + black_pct + type, data)
 
 summary(full_model)
 
 ```
-#The results mean bla bla bla....
+#Results
+
+Since all of the variables have a p-value of less than 0.05, they are all significant at a 95% confidence interval. 
+
+Median Income: We found that an increase in income corresponded with a decrease in the percentage of voters in a county who voted for GOP in the 2020 election. In the bivariate regression a one dollar increase was associated with a decrease in the percent of GOP voters of 0.00056%. If we control for all other variables, a one dollar increase in income was relatively similar, associated with a decrease in the GOP percent of 0.00059%. 
+
+Population Density: A one person/sq. mi. increase in population density corresponded with a -0.0021766% change in GOP voters. In the multivariate regression, once we controlled for other factors, a one person increase in population density was associated with a decrease of 0.00055% in GOP voters. As a result, our analysis suggested that population density had a much weaker effect on the percentage of voters in a county who voted for the GOP when all other variables were held constant. 
+
+White Pct: Based on our analysis, whiteness alone was not a good predictor of a county's voting patterns. In our bivariate regression, we found that a 1% increase in the white population of a county was associated with an increase in the GOP % of 0.53130. On the other hand, when all other variables were held constant, we found that a similar increase in the white population corresponding with an increase in votes won by the GOP of 0.4555%.
+
+Black Pct: In the bivariate regression a one percent increase in the county's Black population was associated with a decrease in the percent of GOP voters of 0.50714%. If we control for all other variables, our multivariate regression showed that a one percent increase in Black population was associated with a decrease in the GOP percent of 0.068688%. 
+
+County Type: Since most of the county types had similar coefficients, they tend to have a similar effect on GOP voting outcomes. Since population density may account for some of the differences between county types, it may be a better predictor. Still, non-core (rural) and micropolitan counties saw the highest increase in the share of GOP votes. 
 
 # References
 
