@@ -1,5 +1,5 @@
 ---
-title: "Assignment 1 & 2"
+title: "US Voting Patterns Analysis"
 author: "Emma Bonanno, Emily Johansen, Katia Krotova"
 date: "10/28/2021"
 output: html_document
@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 
 ## Research Question
 
-Are there significant correlations between rural/suburban/urban characteristics, race, income, and majority county-level voting patterns in the 2020 presidential election? 
+Are there significant correlations between rural/suburban/urban characteristics, population density, race, income, and county-level voting patterns in the 2020 presidential election? 
 
 
 ## Prior Research
@@ -31,13 +31,15 @@ vars_2017 <- load_variables(2017, "acs5")
 ```
 ## Data
 
-Our sample population for this analysis is the full set of all counties across the United States (3,220 observations total). The data included in the analysis is:
+Our sample population for this analysis is the full set of all counties across the United States (3,220 observations total). 
+
+The data included in the analysis is:
 
 
 * People per square mile (American Community Survey 2017)
 * Median income (American Community Survey 2017)
-* Population identifying as White only and Black / African-American only (American Community Survey 2017)
-* Majority vote in the 2020 presidential election (MIT Election Data and Science Lab, 2018)
+* Percentage of population identifying as White only and Black / African-American only (American Community Survey 2017)
+* Percentage of population voting Republican in the 2020 presidential election (MIT Election Data and Science Lab, 2018)
 * Urban-Rural County classification (National Center for Health Statistics 2013)
 
 Load ACS Data
@@ -103,37 +105,35 @@ data <- left_join(acs, areas) %>%
 
 kable(head(data))
 ```
-## Descriptive Statistics
+# Descriptive Statistics
 
-# Continuous Variables
+## Continuous Variables
 
-The continuous variable used in this research are population density, median income, population identifying as White-only, population identifying as Black or African American-only, and percentage of a county's population that voted Republican in the 2020 presidential election. 
+The continuous variable used in this research are population density, median income, percentage of population identifying as White-only, percentage of population identifying as Black or African American-only, and percentage of a county's population that voted Republican in the 2020 presidential election. 
 
-Assignment 2:
+For each continuous variable, calculate:
 
-For each continuous variable calculate:
+1. The sample mean
+2. The 95-percent confidence interval for the population mean
+3. The sample standard deviation
+4. The interquartile range
+5. An illustration (e.g. a histogram) and description of the distribution.
 
-1.The sample mean
-2.The 95-percent confidence interval for the population mean
-3.The sample standard deviation
-4.The interquartile range
-5.An illustration (e.g. a histogram) and description of the distribution.
-
-# Calculations
+### Calculations
 
 ```{r, the sample mean and the 95-percent confidence interval from the population mean by using one sample t-test}
 medinc_t_test <- t.test(data$med_incE)
 dens_t_test <- t.test(data$pop_dens)
-black_t_test <- t.test(data$BlackE)
-white_t_test <- t.test(data$whiteE)
+black_t_test <- t.test(data$black_pct)
+white_t_test <- t.test(data$white_pct)
 GOP_t_test <- t.test(data$pct_GOP)
 ```
 
 ```{r, calculationg the median and the interquartile range using the quantile function}
 medinc_quartiles <- quantile(data$med_incE, na.rm = TRUE)
 dens_quartiles <- quantile(data$pop_dens, na.rm = TRUE)
-black_quartiles <- quantile(data$BlackE, na.rm = TRUE)
-white_quartiles <- quantile(data$whiteE, na.rm = TRUE)
+black_quartiles <- quantile(data$black_pct, na.rm = TRUE)
+white_quartiles <- quantile(data$white_pct, na.rm = TRUE)
 GOP_quartiles <- quantile(data$pct_GOP, na.rm = TRUE)
 
 ```
@@ -141,8 +141,8 @@ GOP_quartiles <- quantile(data$pct_GOP, na.rm = TRUE)
 ```{r, calculationg standard deviation}
 medinc_st_dev <- sd(data$med_incE, na.rm = TRUE)
 dens_st_dev <- sd(data$pop_dens, na.rm = TRUE)
-black_st_dev <- sd(data$BlackE, na.rm = TRUE)
-white_st_dev <- sd(data$whiteE, na.rm = TRUE)
+black_st_dev <- sd(data$black_pct, na.rm = TRUE)
+white_st_dev <- sd(data$white_pct, na.rm = TRUE)
 GOP_st_dev <- sd(data$pct_GOP, na.rm = TRUE)
 
 ```
@@ -156,11 +156,11 @@ dens_hist <- ggplot(data) +
                  bins = 30) +
   scale_x_continuous(trans = "log")
 black_hist <- ggplot(data) +
-  geom_histogram(aes(x = BlackE),
+  geom_histogram(aes(x = black_pct),
                  bins = 30) +
    scale_x_continuous(trans = "log")
 white_hist <- ggplot(data) +
-  geom_histogram(aes(x = whiteE),
+  geom_histogram(aes(x = white_pct),
                  bins = 30)+
   scale_x_continuous(trans = "log")
 
@@ -172,7 +172,7 @@ GOP_hist <- ggplot(data) +
 ```
 
 
-# Displaying Results
+### Displaying Results
 
 ```{r, displaying results from the continous variables, warning=FALSE}
 
@@ -185,8 +185,8 @@ medinc_hist
 cont_summary <- tibble(
   Variable = c("Median income", 
                "Population density (people per square mile)",
-               "Population identifying as Black or African-American only",
-               "Population identifying as White only",
+               "Percentage of population identifying as Black or African-American only",
+               "Percentage of population identifying as White only",
                "Percent who voted Republican"),
   `Sample mean` = c(medinc_t_test$estimate,
                     dens_t_test$estimate,
@@ -233,7 +233,7 @@ pretty_medinc_hist <- medinc_hist +
 
 pretty_GOP_hist <- GOP_hist +
   theme_bw() +
-  scale_x_continuous(name = "% of county residents who voted Republican") +
+  scale_x_continuous(name = "% of county residents who \n voted Republican") +
   scale_y_continuous(name = "Number of counties") +
   theme(axis.text.x = element_text(angle = 90))
 
@@ -245,20 +245,16 @@ pretty_dens_hist <- dens_hist +
                      labels = c("0.1", "1", "10", "100", "1000", "10,000")) +
   scale_y_continuous(name = "Number of counties") +
   theme(axis.text.x = element_text(angle = 90))
+
 pretty_white_hist = white_hist +
   theme_bw() +
-  scale_x_continuous(name = "Population identifying as White only",
-                     trans = "log",
-                     breaks = seq(0, 0.3, by=.05),
-                     labels = seq(0, 300, by = 50)) +
+  scale_x_continuous(name = "Percentage of population\nidentifying as White only") + 
   scale_y_continuous(name = "Number of counties") +
   theme(axis.text.x = element_text(angle = 90)) 
+
 pretty_black_hist = black_hist +
   theme_bw() +
-  scale_x_continuous(name = "Population identifying as Black or African-American only",
-                     trans = "log",
-                     breaks = seq(0, 0.3, by=.05),
-                     labels = seq(0, 300, by = 50)) +
+  scale_x_continuous(name = "Percentage of population\nidentifying as Black or\nAfrican-American only") +
   scale_y_continuous(name = "Number of counties") +
   theme(axis.text.x = element_text(angle = 90))
 
@@ -272,7 +268,7 @@ The categorical variable used in this analysis is:
 
 * The county type (non-core, micropolitan, metropolitan, etc), based on the NCHS classification.
 
-# Calculations
+### Calculations
 
 ```{r}
 
@@ -333,76 +329,23 @@ ggplot(cat_summary_type) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90))
 ```
-We are looking at these variables across the county level. 
 
-## Regression on Continuous Variables
+# Bivariate Regression on Continuous Variables
 
-### Bivariate Analysis
-
-Our dependent variable for this analysis is:
-
-* % of residents within a particular county who voted Republican in the last presidential election
- 
-Our independent variables are:
-
-* Population Density
-* Median Income 
-* Percentage of population identifying as White only 
-* Percentage of population identifying as Black / African-American only 
-* Urban-Rural County classification
-
-# Population Density
+## Population Density
 
 ```{r}
 cor.test(~ pct_GOP + pop_dens, data = data)
 ```
-
-The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that higher population density within a county is associated with a lower percentage of Republican voters.
-
-```{r}
-dens_model <- lm(pct_GOP ~ pop_dens, data = data)
-summary(dens_model)
-```
-#  Median Income 
-
-```{r}
-cor.test(~ pct_GOP + med_incE, data = data)
-inc_model <- lm(pct_GOP ~ med_incE, data = data)
-summary(inc_model)
-```
-The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that higher median income within a county is associated with a lower percentage of Republican voters.
-
-### Bivariate Analysis
-
-Our dependent variable for this analysis is:
-
-* % of residents within a particular county who voted Republican in the last presidential election
- 
-Our independent variables are:
-
-* Population Density
-* Median Income 
-* Percentage of population identifying as White only 
-* Percentage of population identifying as Black / African-American only 
-* Urban-Rural County classification
-
-We are looking at these variables across the county level. 
-
-## Regression on Continuous Variables
-
-# Population Density
-
-```{r}
-cor.test(~ pct_GOP + pop_dens, data = data)
-```
-The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that higher population density within a county is associated with a lower percentage of Republican voters.
 
 ```{r}
 dens_model <- lm(pct_GOP ~ pop_dens, data = data)
 
 summary(dens_model)
 ```
-#  Median Income 
+The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that higher population density within a county is associated with a lower percentage of Republican voters.
+
+##  Median Income 
 
 ```{r}
 cor.test(~ pct_GOP + med_incE, data = data)
@@ -414,7 +357,7 @@ summary(inc_model)
 The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that higher median income within a county is associated with a lower percentage of Republican voters.
 
 
-# Percentage of population identifying as white only
+## Percentage of population identifying as white only
 
 ```{r}
 cor.test(~ pct_GOP + white_pct, data = data)
@@ -426,7 +369,7 @@ summary(inc_model)
 The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is positive. This means we can say with 95-percent confidence that a higher percentage of white-only identifying people within a county is associated with a higher percentage of Republican voters.
 
 
-# Percent of population identifying as Black / African-American only 
+## Percent of population identifying as Black / African-American only 
 
 ```{r}
 cor.test(~ pct_GOP + black_pct, data = data)
@@ -438,49 +381,9 @@ summary(inc_model)
 The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that a higher percentage of Black-only identifying people within a county is associated with a lower percentage of Republican voters.
 
 
+# Bivariate Regression on Categorical Variables
 
-## Regression on Categorical Variables
-
-# Urban-Rural County classification
-
-Is there a relationship between voting patterns and the urban/rural makeup of a county?
-
-```{r}
-data <- data %>%
-  mutate(type = as.factor(type)) %>%
-  mutate(type = relevel(type, "Large central metro"))
-
-type_model <- lm(pct_GOP ~ type, data)
-
-summary(type_model)
-```
-
-
-
-# Percentage of population identifying as white only
-
-```{r}
-cor.test(~ pct_GOP + white_pct, data = data)
-inc_model <- lm(pct_GOP ~ white_pct, data = data)
-summary(inc_model)
-```
-The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is positive. This means we can say with 95-percent confidence that a higher percentage of white-only identifying people within a county is associated with a higher percentage of Republican voters.
-
-
-# Percent of population identifying as Black / African-American only 
-
-```{r}
-cor.test(~ pct_GOP + black_pct, data = data)
-inc_model <- lm(pct_GOP ~ black_pct, data = data)
-summary(inc_model)
-```
-The 95-percent confidence interval for the correlation does not include zero, and the correlation coefficient is negative. This means we can say with 95-percent confidence that a higher percentage of Black-only identifying people within a county is associated with a lower percentage of Republican voters.
-
-
-
-## Regression on Categorical Variables
-
-# Urban-Rural County classification
+## Urban-Rural County classification
 
 Is there a relationship between voting patterns and the urban/rural makeup of a county?
 
@@ -493,7 +396,7 @@ summary(type_model)
 ```
 Since the coefficient for each is positive (represented in the first "Estimate Std" column), there is a positive relationship between each of these types and GOP voting. Since the coefficients are higher for micropolitan and non-core cities, we can infer that GOP voting is generally higher in these types of cities than in the others which have lower coefficients. 
 
-## Multivariate regression
+# Multivariate Regression
 ```{r}
 
 full_model <- lm(pct_GOP ~ med_incE + pop_dens + white_pct + black_pct + type, data)
@@ -501,19 +404,21 @@ full_model <- lm(pct_GOP ~ med_incE + pop_dens + white_pct + black_pct + type, d
 summary(full_model)
 
 ```
-#Results
+## Results
 
 Since all of the variables have a p-value of less than 0.05, they are all significant at a 95% confidence interval. 
 
-Median Income: We found that an increase in income corresponded with a decrease in the percentage of voters in a county who voted for GOP in the 2020 election. In the bivariate regression a one dollar increase was associated with a decrease in the percent of GOP voters of 0.00056%. If we control for all other variables, a one dollar increase in income was relatively similar, associated with a decrease in the GOP percent of 0.00059%. 
+**Median Income:** We found that an increase in income corresponded with a decrease in the percentage of voters in a county who voted for GOP in the 2020 election. In the bivariate regression a one dollar increase was associated with a decrease in the percent of GOP voters of 0.00056%. If we control for all other variables, a one dollar increase in income was relatively similar, associated with a decrease in the GOP percent of 0.00059%. 
 
-Population Density: A one person/sq. mi. increase in population density corresponded with a -0.0021766% change in GOP voters. In the multivariate regression, once we controlled for other factors, a one person increase in population density was associated with a decrease of 0.00055% in GOP voters. As a result, our analysis suggested that population density had a much weaker effect on the percentage of voters in a county who voted for the GOP when all other variables were held constant. 
+**Population Density:** A one person/sq. mi. increase in population density corresponded with a -0.0021766% change in GOP voters. In the multivariate regression, once we controlled for other factors, a one person increase in population density was associated with a decrease of 0.00055% in GOP voters. As a result, our analysis suggested that population density had a much weaker effect on the percentage of voters in a county who voted for the GOP when all other variables were held constant. 
 
-White Pct: Based on our analysis, whiteness alone was not a good predictor of a county's voting patterns. In our bivariate regression, we found that a 1% increase in the white population of a county was associated with an increase in the GOP % of 0.53130. On the other hand, when all other variables were held constant, we found that a similar increase in the white population corresponding with an increase in votes won by the GOP of 0.4555%.
+**White Pct:** Based on our analysis, whiteness alone was not a good predictor of a county's voting patterns. In our bivariate regression, we found that a 1% increase in the white population of a county was associated with an increase in the GOP % of 0.53130. On the other hand, when all other variables were held constant, we found that a similar increase in the white population corresponding with an increase in votes won by the GOP of 0.4555%.
 
-Black Pct: In the bivariate regression a one percent increase in the county's Black population was associated with a decrease in the percent of GOP voters of 0.50714%. If we control for all other variables, our multivariate regression showed that a one percent increase in Black population was associated with a decrease in the GOP percent of 0.068688%. 
+**Black Pct:** In the bivariate regression a one percent increase in the county's Black population was associated with a decrease in the percent of GOP voters of 0.50714%. If we control for all other variables, our multivariate regression showed that a one percent increase in Black population was associated with a decrease in the GOP percent of 0.068688%. 
 
-County Type: Since most of the county types had similar coefficients, they tend to have a similar effect on GOP voting outcomes. Since population density may account for some of the differences between county types, it may be a better predictor. Still, non-core (rural) and micropolitan counties saw the highest increase in the share of GOP votes. 
+**County Type:** Since most of the county types had similar coefficients, they tend to have a similar effect on GOP voting outcomes. Since population density may account for some of the differences between county types, it may be a better predictor. Still, non-core (rural) and micropolitan counties saw the highest increase in the share of GOP votes.
+
+Overall, our model explains about 45% of the variation in county-level voting patterns.
 
 # References
 
