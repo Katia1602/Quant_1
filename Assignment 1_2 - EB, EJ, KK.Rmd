@@ -333,6 +333,10 @@ ggplot(cat_summary_type) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90))
 ```
+We are looking at these variables across the county level. 
+
+## Regression on Continuous Variables
+
 ### Bivariate Analysis
 
 Our dependent variable for this analysis is:
@@ -346,10 +350,6 @@ Our independent variables are:
 * Percentage of population identifying as White only 
 * Percentage of population identifying as Black / African-American only 
 * Urban-Rural County classification
-
-We are looking at these variables across the county level. 
-
-## Regression on Continuous Variables
 
 # Population Density
 
@@ -492,6 +492,16 @@ type_model <- lm(pct_GOP ~ type, data)
 summary(type_model)
 ```
 Since the coefficient for each is positive (represented in the first "Estimate Std" column), there is a positive relationship between each of these types and GOP voting. Since the coefficients are higher for micropolitan and non-core cities, we can infer that GOP voting is generally higher in these types of cities than in the others which have lower coefficients. 
+
+## Multivariate regression
+```{r}
+
+full_model <- lm(pct_GOP ~ med_incE + pop_dens + white_pct + black_pct, data)
+
+summary(full_model)
+
+```
+#The results mean bla bla bla....
 
 # References
 
