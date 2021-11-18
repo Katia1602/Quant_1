@@ -11,7 +11,7 @@
 
 <meta name="author" content="Emma Bonanno, Emily Johansen, Katia Krotova" />
 
-<meta name="date" content="2021-10-28" />
+<meta name="date" content="2021-11-18" />
 
 <title>US Voting Patterns Analysis</title>
 
@@ -167,7 +167,7 @@ pre code {
 
 <h1 class="title toc-ignore">US Voting Patterns Analysis</h1>
 <h4 class="author">Emma Bonanno, Emily Johansen, Katia Krotova</h4>
-<h4 class="date">10/28/2021</h4>
+<h4 class="date">11/18/2021</h4>
 
 </div>
 
@@ -994,7 +994,7 @@ export_summs(full_model, centered_model,
              error_pos = &quot;same&quot;,
              model.names = c(&quot;Initial&quot;, &quot;Centered&quot;),
              coefs = coeff_names)</code></pre>
-<p><table class="huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-19">
+<table class="huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-19">
 <col><col><col><tr>
 <th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Initial</th><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Centered</th></tr>
 <tr>
@@ -1024,7 +1024,10 @@ export_summs(full_model, centered_model,
 <tr>
 <th colspan="3" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"> *** p &lt; 0.001;  ** p &lt; 0.01;  * p &lt; 0.05.</th></tr>
 </table>
- ## Scaling</p>
+
+</div>
+<div id="scaling" class="section level2">
+<h2>Scaling</h2>
 <p>We chose to scale the population density and median income variables since the coefficients were extremely small in our initial model. Our initial model predicted the change in the percent GOP votes for a one dollar change in median income and a one person per square mile change in population density. Since the variables being rescaled have already been mean-centered, the new model will predict the change in GOP votes for a $1,000 change in median income over the average, and the change in GOP votes for a 100 person change in population density over the average.</p>
 <pre class="r"><code>centered_data_scaled &lt;- centered_data %&gt;%
   mutate(med_incE = med_incE / 1000,

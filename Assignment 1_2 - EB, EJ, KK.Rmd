@@ -1,7 +1,7 @@
 ---
 title: "US Voting Patterns Analysis"
 author: "Emma Bonanno, Emily Johansen, Katia Krotova"
-date: "10/28/2021"
+date: "11/18/2021"
 output: html_document
 ---
 
@@ -462,6 +462,7 @@ export_summs(full_model, centered_model,
              model.names = c("Initial", "Centered"),
              coefs = coeff_names)
 ```
+
 ## Scaling
 
 We chose to scale the population density and median income variables since the coefficients were extremely small in our initial model. Our initial model predicted the change in the percent GOP votes for a one dollar change in median income and a one person per square mile change in population density. Since the variables being rescaled have already been mean-centered, the new model will predict the change in GOP votes for a $1,000 change in median income over the average, and the change in GOP votes for a 100 person change in population density over the average. 
