@@ -422,7 +422,10 @@ Since all of the variables have a p-value of less than 0.05, they are all signif
 Overall, our model explains about 45% of the variation in county-level voting patterns.
 
 
-## Mean Centering
+# Transformations & Scaling
+
+## Mean Centering 
+We chose to mean center the population density and median income variables. By doing so, we are able to predict how variation in density and income away from average impacts the percent of GOP votes. 
 
 ```{r}
 
@@ -430,19 +433,23 @@ centered_data <- data %>%
   mutate(pop_dens = pop_dens - mean(pop_dens, na.rm=TRUE),
          med_incE = med_incE - mean(med_incE, na.rm=TRUE))
 
-
 centered_model <- lm(pct_GOP ~ med_incE + pop_dens + white_pct + black_pct + type, centered_data)
 
 export_summs(full_model, centered_model, 
              error_format = "(p = {p.value})",
              error_pos = "same",
-             model.names = c("Initial", "Centered"))
+             model.names = c("Initial", "Centered"),
+             coeffs = "coeff_names")
 
 ```
+By mean centering the data, the R-squared value remained constant with our initial model, but the intercept shifted. In this case, the mean-centered intercept represents the percentage of GOP votes in a hypothetical Large Central Metro county where population density and median income are average and there are zero white or Black residents.
+
 ```{r}
 coeff_names <- c("Constant" = "(Intercept)",
                  "Median income" = "med_incE",
                  "Population density (people per square mile)" = "pop_dens",
+                 "White Population (%)" = "white_pct",
+                 "Black Population (%)" = "black_pct",
                  "Large fringe metro" = "typeLarge fringe metro",
                  "Medium metro" = "typeMedium metro",
                  "Small metro" = "typeSmall metro",
@@ -455,18 +462,20 @@ export_summs(full_model, centered_model,
              model.names = c("Initial", "Centered"),
              coefs = coeff_names)
 ```
-**The model fit (given by the R-square value) is exactly the same, and the coefficients are all the same, except for the intercept
+## Scaling
 
-#Scaling
+We chose to scale the population density and median income variables since the coefficients were extremely small in our initial model. Our initial model predicted the change in the percent GOP votes for a one dollar change in median income and a one person per square mile change in population density. Since the variables being rescaled have already been mean-centered, the new model will predict the change in GOP votes for a $1,000 change in median income over the average, and the change in GOP votes for a 100 person change in population density over the average. 
 
 ```{r}
 centered_data_scaled <- centered_data %>%
-  mutate(pct_GOP = pct_GOP * 100,
+  mutate(med_incE = med_incE / 1000,
          pop_dens_100 = pop_dens / 100)
 
 coeff_names_scaled <- c("Constant" = "(Intercept)",
-                 "Population density (people per square mile)" = "pop_dens",
+                 "Median Income ($000s)" = "med_incE",
                  "Population density (100 people per square mile)" = "pop_dens_100",
+                 "White Population" = "white_pct",
+                 "Black Population" = "black_pct",
                  "Large fringe metro" = "typeLarge fringe metro",
                  "Medium metro" = "typeMedium metro",
                  "Small metro" = "typeSmall metro",
@@ -474,20 +483,23 @@ coeff_names_scaled <- c("Constant" = "(Intercept)",
                  "Rural" = "typeNon-core")
                    
                    
-centered_model_scaled <- lm(pct_GOP ~ med_incE + pop_dens_100 + type, centered_data_scaled)
+centered_model_scaled <- lm(pct_GOP ~ med_incE + pop_dens_100 + white_pct + black_pct + type, centered_data_scaled)
 
 export_summs(full_model, centered_model,centered_model_scaled,
              error_format = "(p = {p.value})",
              error_pos = "same",
-             model.names = c("Initial\n()", 
-                             "Centered\n()", 
-                             "Centered\n(per 1,000 residents)"),
+             model.names = c("Initial", 
+                             "Centered", 
+                             "Centered\n(per 100 residents)"),
              coefs = coeff_names_scaled)
 ```
+By mean centering and scaling our model, we are able to produce more easily interpretable coefficients. Our centered and scaled model now predicts the effect on GOP votes as median income deviates from the average by 1,000 dollars, as well as for a change in population density of 100 people over the average. 
 
+In the initial and centered models, the coefficient for median income was extremely small (displayed as zero) because we were analyzing the change in GOP voting percentage when median income changes by only one dollar. In scaling the data, we were able to identify the change in GOP voting % when median income changes by 1,000. The output of the model was more meaningful in this case and returned a 0.59% decrease in GOP votes for a $1,000 increase in median income over the average. 
 
+Similarly, the coefficient for population density was also extremely small because we were analyzing the change in GOP votes when population density changes by only one person. In scaling the data, we were able to identify the change in GOP voting % when population density changes by 100 people per square mile. The model in this case returned a 0.05% decrease in percent GOP votes when population density increased by 100 over the average. 
 
-
+Since the R-squared value remained the same for all three models (equal to 0.46), our model fit did not change. This implies that 46% of change in GOP votes (%) can be attributed to these variables. 
 
 # References
 
