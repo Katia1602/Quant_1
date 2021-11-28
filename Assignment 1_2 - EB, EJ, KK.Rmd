@@ -28,6 +28,7 @@ library(tigris)
 library(sf)
 library(gridExtra)
 library(jtools)
+library(interactions)
 vars_2017 <- load_variables(2017, "acs5")
 ```
 ## Data
@@ -501,6 +502,48 @@ In the initial and centered models, the coefficient for median income was extrem
 Similarly, the coefficient for population density was also extremely small because we were analyzing the change in GOP votes when population density changes by only one person. In scaling the data, we were able to identify the change in GOP voting % when population density changes by 100 people per square mile. The model in this case returned a 0.05% decrease in percent GOP votes when population density increased by 100 over the average. 
 
 Since the R-squared value remained the same for all three models (equal to 0.46), our model fit did not change. This implies that 46% of change in GOP votes (%) can be attributed to these variables. 
+
+# Interactions
+
+Controlling for median income, an increase in the percentage of Black identifying residents results in a decrease in Republican voters. Does the relationship between median income and percentage of Republican voters change depending on the racial makeup of a county?
+
+```{r}
+coeff_names_interaction <- c("Constant" = "(Intercept)",
+                 "Median Income ($000s)" = "med_incE",
+                 "Population density (100 people per square mile)" = "pop_dens_100",
+                 "White Population" = "white_pct",
+                 "Black Population" = "black_pct",
+                 "Large fringe metro" = "typeLarge fringe metro",
+                 "Medium metro" = "typeMedium metro",
+                 "Small metro" = "typeSmall metro",
+                 "Micropolitan" = "typeMicropolitan",
+                 "Rural" = "typeNon-core")
+                   
+                   
+interaction_model <- lm(pct_GOP ~ med_incE + pop_dens_100 + white_pct + black_pct + type + pop_dens_100*black_pct, centered_data_scaled)
+
+export_summs(centered_model_scaled, interaction_model,
+             error_format = "(p = {p.value})",
+             error_pos = "same",
+             model.names = c("Centered\n(per 100 residents)",
+                             "Interaction"))
+```
+
+
+The model fit did not change, as the R squared value is still the same. 
+
+
+```{r}
+interact_plot(interaction_model, pred = med_incE, modx = black_pct,
+              interval = TRUE) +
+  scale_x_continuous(breaks = breaks <- c(-2, -1, 0, 1, 2),
+                     labels = round(breaks * 10 + mean(data$med_incE, na.rm = TRUE)),
+                     name = "Median income") +
+  scale_y_continuous(name = "Predicted Percentage of Republican Voters per 100 residents")
+
+```
+
+
 
 # References
 
